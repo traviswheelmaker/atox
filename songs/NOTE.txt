@@ -1,0 +1,1 @@
+Make sure to only put MP3 or WAVE files inside this folder.
