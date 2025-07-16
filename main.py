@@ -25,6 +25,8 @@ class Main(QMainWindow):
         self.file_handler: fileHandler = fileHandler()
         self.play_order: playOrder = playOrder()
 
+        self.playlist_isnt_empty: bool = False
+
         self.load_new_playlist()
 
         
@@ -72,18 +74,19 @@ class Main(QMainWindow):
 
         self.main_widget.show()
         
-        self.player.play_song(self.play_order.current_song)
-        self.player.pause()
-        self.display_update()   
+        if self.playlist_isnt_empty:
+            self.player.play_song(self.play_order.current_song)
+            self.player.pause()
+            self.display_update()   
 
-        self.freeplay_timer: QTimer = QTimer()
-        self.freeplay_timer.timeout.connect(self.new_song_update)
-        self.freeplay_timer.start(400)
+            self.freeplay_timer: QTimer = QTimer()
+            self.freeplay_timer.timeout.connect(self.new_song_update)
+            self.freeplay_timer.start(400)
 
 
-        self.position_timer: QTimer = QTimer()
-        self.position_timer.timeout.connect(self.pos_update)
-        self.position_timer.start(100)
+            self.position_timer: QTimer = QTimer()
+            self.position_timer.timeout.connect(self.pos_update)
+            self.position_timer.start(100)
 
     def song_request(self, song_display_name: str) -> None:
         self.play_order.update_current_song(self.play_order.get_path_from_display(song_display_name))
@@ -98,7 +101,7 @@ class Main(QMainWindow):
 
 
     def new_song_update(self) -> None:
-        if self.player.freeplay_ticker(): #true means song is over/not loaded
+        if self.player.freeplay_ticker():
             if not self.player.loopmode:
                 self.play_order.forward() 
             self.player.play_song(self.play_order.current_song)
@@ -119,7 +122,9 @@ class Main(QMainWindow):
     
     def load_new_playlist(self) -> None:
         playlist: list[str] = self.file_handler.get_filepaths_from_dir()
-        self.play_order.load_playlist(playlist)
+        self.playlist_isnt_empty = bool(playlist) 
+        if self.playlist_isnt_empty:
+            self.play_order.load_playlist(playlist)
         
     
 def start() -> None:
@@ -128,4 +133,3 @@ def start() -> None:
     window.show()
     app.exec()
 
-            
